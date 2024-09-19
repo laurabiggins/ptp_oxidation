@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+/not_needed
+test_plot.Rmd
+test.R

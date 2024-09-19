@@ -12,7 +12,7 @@ mod_scatter_ui <- function(id){
   )
 } 
 
-mod_scatter_server <- function(id, tbl_list, show_lines, point_colour, highlight, remove_legend) {
+mod_scatter_server <- function(id, tbl_list, show_lines, point_colour, highlight, remove_legend, select_gene) {
 
   moduleServer(
     id = id,
@@ -41,14 +41,23 @@ mod_scatter_server <- function(id, tbl_list, show_lines, point_colour, highlight
       })
       
       
+      gene_to_plot <- reactive({
+        
+        if (select_gene() == "top_ptp") {
+          return (top_ptp())
+        } else {
+          return (select_gene())
+        }
+        
+      })
       
       base_plot <- reactive({
         
         dataset() |>
-          filter(Gene == top_ptp()) |>
+          filter(Gene == gene_to_plot()) |>
           ggplot(aes(x = age, y = oxi_percent, key = residue)) +
           geom_point_display() +
-          ggtitle(top_ptp())
+          ggtitle(gene_to_plot())
         
       })
       

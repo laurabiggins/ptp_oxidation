@@ -58,6 +58,11 @@ ui <- page_fillable(
           "PTP oxidation",
           popover(
             bsicons::bs_icon("gear", class = "ms-auto"),
+            title = "some options",
+            p("hello")
+          ),
+          popover(
+            actionButton("plot_options", label = "plot options"),
             title = "Highlight options",
             checkboxInput(
               inputId = "show_lines",
@@ -86,6 +91,20 @@ ui <- page_fillable(
             #   choices   = all_proteins, 
             #   multiple  = TRUE
             # )
+          ),
+          popover(
+           # p("Change gene"),
+            actionButton(inputId = "change_gene", "Change gene"),
+            title = "Select gene",
+            checkboxInput(
+              inputId = "show_top_ptp",
+              label   = "show top ptp for each tissue",
+              value = TRUE
+            ),
+            conditionalPanel(
+              condition = "input.show_top_ptp == 0",
+              selectInput(inputId = "select_gene", label = "select gene", choices = all_ptps)
+            )
           ),
           actionButton(inputId = "back_to_main2", "Back to main"),
           class = "d-flex align-items-center gap-1"
@@ -121,6 +140,15 @@ server <- function(input, output, session) {
     return (input$remove_legend)
   })
   
+  gene_to_plot <- reactive({
+    
+    if (input$show_top_ptp) return ("top_ptp")
+    
+    req(input$select_gene)
+    return(input$select_gene)
+  }) 
+  
+  
   for (i in 1:n_cards){
     mod_scatter_server(
       id            = paste0(ID_variable,i), 
@@ -128,7 +156,9 @@ server <- function(input, output, session) {
       show_lines    = display_lines, 
       point_colour  = point_colour_sel, 
       highlight     = highlight_points, 
-      remove_legend = remove_legend)
+      remove_legend = remove_legend,
+      select_gene   = gene_to_plot
+    )
   }
   
 }

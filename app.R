@@ -27,6 +27,11 @@ create_card <- function(i, data = nested_tissues, id_name = ID_variable){
   )
 }
 
+create_mod_card <- function(i, id_name = ID_variable) {
+  
+  mod_card_ui(paste0(ID_variable,"_card_",i), paste0(ID_variable,i,"different name"), all_ptps)
+}
+
 
 ui <- page_fillable(
   tags$head(
@@ -44,19 +49,6 @@ ui <- page_fillable(
           "PTP oxidation",
           plot_options_popover_ns(),
           change_selected_gene_popover(all_choices = all_ptps),
-          # popover(
-          #   actionButton(inputId = "change_gene", "Change gene"),
-          #   title = "Select gene",
-          #   checkboxInput(
-          #     inputId = "show_top_ptp",
-          #     label   = "show top ptp for each tissue",
-          #     value = TRUE
-          #   ),
-          #   conditionalPanel(
-          #     condition = "input.show_top_ptp == 0",
-          #     selectInput(inputId = "select_gene", label = "select gene", choices = all_ptps)
-          #   )
-          # ),
           #actionButton(inputId = "back_to_main2", "Back to main"),
           class = "d-flex align-items-center gap-1"
         ),
@@ -64,6 +56,10 @@ ui <- page_fillable(
         layout_columns(
           col_widths = 3,
           !!!purrr::map(.x=1:n_cards, create_card)
+        ),
+        layout_columns(
+          col_widths = 3,
+          !!!purrr::map(.x=1:n_cards, create_mod_card)
         ),
         actionButton("browser", "browser")
       )
@@ -83,7 +79,20 @@ server <- function(input, output, session) {
     return(input$select_gene)
   }) 
   
+  # We can have an extra nested module
   mod_card_server("A card", nested_tissues)
+  
+  
+  # I still don't understand how to pass in a subset of the data. The id works,
+  # but using i in any other arguments just seems to get overwritten, and we end 
+  # up with all of the cards showing the final i
+  # for (i in 1:n_cards){
+  #   mod_card_server(
+  #     id        = paste0(ID_variable,"_card_",i), 
+  #     tbl       = nested_tissues, 
+  #     small_ds  = nested_tissues[i,2][[1]][[1]]
+  #   )
+  # }
   
   for (i in 1:n_cards){
     mod_scatter_server(

@@ -7,32 +7,31 @@ mod_card_ui <- function(id, card_name, all_ptps){
   
   ns <- NS(id)
   tagList(
-    card(
-      full_screen = TRUE,
-      card_header(card_name),
-      # popover(
-      #   actionButton(inputId = ns("change_gene"), "Change gene"),
-      #   title = "Select gene",
-      #   checkboxInput(
-      #     inputId = ns("show_top_ptp"),
-      #     label   = "show top ptp for each tissue",
-      #     value = TRUE
-      #   ),
-      #   conditionalPanel(
-      #     condition = "input.show_top_ptp == 0",
-      #     selectInput(inputId = ns("select_gene"), label = "select gene", choices = all_ptps),
-      #     ns=NS(id) # not sure why this makes the conditional panel work
-      #   )
-      # ),
-      change_selected_gene_popover(id, all_choices = all_ptps),
-      plot_options_popover_ns(id),
-      mod_scatter_ui(ns("sub_mod")),
-      actionButton(ns("browser"), "mod card browser")
-    )
+    #layout_columns(
+      #col_widths = 6,
+      card(
+        full_screen = TRUE,
+        card_header(card_name),
+        change_selected_gene_popover(id, all_choices = all_ptps),
+        plot_options_popover_ns(id),
+        mod_scatter_ui(ns("sub_mod")),
+        actionButton(ns("browser"), "mod card browser")
+      )#,
+      # card(
+      #   full_screen = TRUE,
+      #   card_header(card_name),
+      #   #change_selected_gene_popover(id, all_choices = all_ptps),
+      #  # plot_options_popover_ns(id),
+      #   mod_scatter2_ui(ns("sub_mod")),
+      #   actionButton(ns("browser2"), "mod card browser")
+      # )
+   # )
   )
 }
 
-mod_card_server <- function(id, tbl) {
+#small_ds
+
+mod_card_server <- function(id, tbl, small_ds=NULL) {
   
   moduleServer(
     id = id,
@@ -59,6 +58,17 @@ mod_card_server <- function(id, tbl) {
         remove_legend      = reactive(input$remove_legend),
         select_gene        = gene_to_plot
       )
+      
+      # mod_scatter2_server(
+      #   id                 = "sub_mod", 
+      #   tbl_list           = tbl, 
+      #   small_ds           = small_ds,
+      #   show_lines         = reactive(input$show_lines), 
+      #   colour_by_residue  = reactive(input$colour_by_residue), 
+      #   highlight          = reactive(input$highlight_cys), 
+      #   remove_legend      = reactive(input$remove_legend),
+      #   select_gene        = gene_to_plot
+      # )
       
     }
   )

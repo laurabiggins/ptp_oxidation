@@ -19,11 +19,11 @@ mod_scatter_ui <- function(id){
   ns <- NS(id)
   tagList(
     plotlyOutput(outputId = ns("scatter")),
-    actionButton(ns("browser"), "browser")
+    actionButton(ns("browser"), "mod scatter browser")
   )
 } 
 
-mod_scatter_server <- function(id, tbl_list, show_lines, point_colour, highlight, remove_legend, select_gene) {
+mod_scatter_server <- function(id, tbl_list, show_lines, colour_by_residue, highlight, remove_legend, select_gene) {
 
   moduleServer(
     id = id,
@@ -38,7 +38,13 @@ mod_scatter_server <- function(id, tbl_list, show_lines, point_colour, highlight
       # extract the dataset from the nested list of tibbles
       # get i from id
       i <- as.numeric(gsub(id, pattern = "tissue", replacement = ""))
-      dataset <- reactive(tbl_list[i,2][[1]][[1]])
+      
+      dataset <- reactive({
+        
+        j <- if_else(isTruthy(i), i, 1)
+        return (tbl_list[j,2][[1]][[1]])
+        
+      })
       
       
       gg_plot <- reactive({
@@ -71,11 +77,8 @@ mod_scatter_server <- function(id, tbl_list, show_lines, point_colour, highlight
       
       base_plot <- reactive({
         
-        # dataset() |>
-        #   filter(Gene == gene_to_plot()) |>
         selected_data() |>
           ggplot(aes(x = age, y = oxi_percent, key = residue)) +
-          #geom_point_display() +
           ggtitle(gene_to_plot())
         
       })
@@ -121,7 +124,7 @@ mod_scatter_server <- function(id, tbl_list, show_lines, point_colour, highlight
       # get the point colours
       geom_point_display <- reactive({
         
-        if (point_colour() == "residue") {
+        if (colour_by_residue()) {
           return (
             geom_point(aes(fill = residue, colour = residue))
           )

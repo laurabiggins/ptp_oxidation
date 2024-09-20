@@ -35,80 +35,32 @@ ui <- page_fillable(
   title = "Data explorer",  
   tabsetPanel(
     id = "main_panel",
-   # type = "hidden",
-    # tabPanelBody(
-    #   "landing_page",
-    #   papercard,
-    #   br(),
-    #   h4("Data types available to explore from this paper", style = "text-align: center;"),
-    #   layout_columns(
-    #     fill = FALSE,
-    #     value_boxes[["PTP oxidation"]],
-    #     #value_boxes[["proteomics"]],
-    #     #value_boxes[["imaging"]]
-    #   )
-    # ),
+   # there are some examples of things to include here in the prototype data explorer project
     tabPanelBody(
       "data2",
-      #h2("Some pretty pictures here", ),
-      #actionButton(inputId = "back_to_main2", "Back to main"),
       card(
         full_screen = TRUE,
         card_header(
           "PTP oxidation",
-          popover(
-            bsicons::bs_icon("gear", class = "ms-auto"),
-            title = "some options",
-            p("hello")
-          ),
-          popover(
-            actionButton("plot_options", label = "plot options"),
-            title = "Highlight options",
-            checkboxInput(
-              inputId = "show_lines",
-              label   = "show lines to highlight same residues"
-            ),
-            checkboxInput(
-              inputId = "colour_by_residue",
-              label   = "colour by residue"
-            ),
-            checkboxInput(
-              inputId = "remove_legend",
-              label   = "remove legends"
-            ),
-            radioButtons(
-              inputId = "highlight_cys",
-              label   = "highlight",
-              choices = list(
-                None = "None",
-                `Catalytic cysteines` = "Catalytic_Cys",
-                `Backdoor cysteines` = "Backdoor_Cys"
-              )
-            ),
-            # selectizeInput(
-            #   inputId   = "prot_to_highlight", 
-            #   label     = 'Select protein(s) to highlight', 
-            #   choices   = all_proteins, 
-            #   multiple  = TRUE
-            # )
-          ),
-          popover(
-           # p("Change gene"),
-            actionButton(inputId = "change_gene", "Change gene"),
-            title = "Select gene",
-            checkboxInput(
-              inputId = "show_top_ptp",
-              label   = "show top ptp for each tissue",
-              value = TRUE
-            ),
-            conditionalPanel(
-              condition = "input.show_top_ptp == 0",
-              selectInput(inputId = "select_gene", label = "select gene", choices = all_ptps)
-            )
-          ),
-          actionButton(inputId = "back_to_main2", "Back to main"),
+          plot_options_popover_ns(),
+          change_selected_gene_popover(all_choices = all_ptps),
+          # popover(
+          #   actionButton(inputId = "change_gene", "Change gene"),
+          #   title = "Select gene",
+          #   checkboxInput(
+          #     inputId = "show_top_ptp",
+          #     label   = "show top ptp for each tissue",
+          #     value = TRUE
+          #   ),
+          #   conditionalPanel(
+          #     condition = "input.show_top_ptp == 0",
+          #     selectInput(inputId = "select_gene", label = "select gene", choices = all_ptps)
+          #   )
+          # ),
+          #actionButton(inputId = "back_to_main2", "Back to main"),
           class = "d-flex align-items-center gap-1"
         ),
+        mod_card_ui("A card", "different name", all_ptps),
         layout_columns(
           col_widths = 3,
           !!!purrr::map(.x=1:n_cards, create_card)
@@ -120,26 +72,9 @@ ui <- page_fillable(
 )
 
 server <- function(input, output, session) {
+  
   observeEvent(input$browser, browser())
-  
-  display_lines <- reactive(input$show_lines)
-  
-  point_colour_sel <- reactive({
-    if (input$colour_by_residue == TRUE) {
-      return ("residue")
-    } else {
-      return ("black")
-    }
-  })
 
-  highlight_points <- reactive({
-    return (input$highlight_cys)
-  })
-  
-  remove_legend <- reactive({
-    return (input$remove_legend)
-  })
-  
   gene_to_plot <- reactive({
     
     if (input$show_top_ptp) return ("top_ptp")
@@ -148,19 +83,20 @@ server <- function(input, output, session) {
     return(input$select_gene)
   }) 
   
+  mod_card_server("A card", nested_tissues)
   
   for (i in 1:n_cards){
     mod_scatter_server(
-      id            = paste0(ID_variable,i), 
-      tbl_list      = nested_tissues, 
-      show_lines    = display_lines, 
-      point_colour  = point_colour_sel, 
-      highlight     = highlight_points, 
-      remove_legend = remove_legend,
-      select_gene   = gene_to_plot
+      id                 = paste0(ID_variable,i), 
+      tbl_list           = nested_tissues, 
+      show_lines         = reactive(input$show_lines), 
+      colour_by_residue  = reactive(input$colour_by_residue), 
+      highlight          = reactive(input$highlight_cys), 
+      remove_legend      = reactive(input$remove_legend),
+      select_gene        = gene_to_plot
     )
   }
-  
+
 }
 
 shinyApp(ui, server)

@@ -19,7 +19,7 @@ mod_scatter_ui <- function(id){
   ns <- NS(id)
   tagList(
     plotlyOutput(outputId = ns("scatter")),
-    actionButton(ns("browser"), "mod scatter browser")
+   # actionButton(ns("browser"), "mod scatter browser")
   )
 } 
 

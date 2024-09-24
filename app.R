@@ -47,21 +47,22 @@ ui <- page_fillable(
         full_screen = TRUE,
         card_header(
           "PTP oxidation",
+          bsicons::bs_icon("gear", class = "ms-auto"),
           plot_options_popover_ns(),
           change_selected_gene_popover(all_choices = all_ptps),
           #actionButton(inputId = "back_to_main2", "Back to main"),
           class = "d-flex align-items-center gap-1"
         ),
-        mod_card_ui("A card", "different name", all_ptps),
+       # mod_card_ui("A card", "different name", all_ptps),
         layout_columns(
           col_widths = 3,
           !!!purrr::map(.x=1:n_cards, create_card)
         ),
-        layout_columns(
-          col_widths = 3,
-          !!!purrr::map(.x=1:n_cards, create_mod_card)
-        ),
-        actionButton("browser", "browser")
+        # layout_columns(
+        #   col_widths = 3,
+        #   !!!purrr::map(.x=1:n_cards, create_mod_card)
+        # ),
+       # actionButton("browser", "browser")
       )
     )
   ) 
@@ -80,7 +81,7 @@ server <- function(input, output, session) {
   }) 
   
   # We can have an extra nested module
-  mod_card_server("A card", nested_tissues)
+  #mod_card_server("A card", nested_tissues)
   
   
   # I still don't understand how to pass in a subset of the data. The id works,
